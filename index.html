@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Antar-Jemput Pribadi</title>
+    <!-- Link ke font Inter dari Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Styling dasar untuk body dan font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+            color: #1f2937; /* text-gray-900 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Mengubah align-items agar konten tidak selalu di tengah vertikal penuh */
+            min-height: 100vh;
+            padding: 1rem; /* p-4 */
+            box-sizing: border-box;
+        }
+        /* Dark mode styling */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #111827; /* dark:bg-gray-900 */
+                color: #f9fafb; /* dark:text-gray-100 */
+            }
+        }
+        /* Kontainer utama aplikasi */
+        .container {
+            width: 100%;
+            max-width: 40rem; /* max-w-md, diperluas sedikit untuk tampilan yang lebih baik */
+            background-color: #ffffff; /* bg-white */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1.5rem; /* p-6 */
+            margin-top: 2rem; /* Memberikan sedikit ruang dari atas */
+            border: 1px solid #e5e7eb; /* border border-gray-200 */
+            box-sizing: border-box;
+        }
+        /* Dark mode untuk kontainer */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background-color: #1f2937; /* dark:bg-gray-800 */
+                border-color: #374151; /* dark:border-gray-700 */
+            }
+        }
+        /* Styling untuk judul */
+        h1 {
+            font-size: 2.25rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            text-align: center;
+            color: #2563eb; /* text-blue-600 */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+        /* Dark mode untuk judul */
+        @media (prefers-color-scheme: dark) {
+            h1 {
+                color: #60a5fa; /* dark:text-blue-400 */
+            }
+        }
+        /* Styling untuk paragraf tanggal */
+        .date-display {
+            text-align: center;
+            color: #4b5563; /* text-gray-600 */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        /* Dark mode untuk tanggal */
+        @media (prefers-color-scheme: dark) {
+            .date-display {
+                color: #d1d5db; /* dark:text-gray-300 */
+            }
+        }
+        /* Styling untuk ID Pengguna */
+        .user-id-display {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* text-gray-500 */
+            text-align: center;
+            word-break: break-all; /* break-all */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+        .user-id-display span {
+            font-family: monospace; /* font-mono */
+            background-color: #e5e7eb; /* bg-gray-200 */
+            padding: 0.25rem 0.5rem; /* px-2 py-1 */
+            border-radius: 0.25rem; /* rounded */
+        }
+        /* Dark mode untuk ID Pengguna */
+        @media (prefers-color-scheme: dark) {
+            .user-id-display {
+                color: #9ca3af; /* dark:text-gray-400 */
+            }
+            .user-id-display span {
+                background-color: #374151; /* dark:bg-gray-700 */
+            }
+        }
+        /* Styling untuk bagian pilihan pengemudi */
+        .selection-section {
+            padding: 1rem; /* p-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            border: 1px solid;
+            margin-bottom: 1rem; /* space-y-4 */
+        }
+        .selection-section label.block {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+        .selection-section .radio-group {
+            display: flex;
+            gap: 1rem; /* space-x-4 */
+        }
+        .selection-section input[type="radio"] {
+            height: 1.25rem; /* h-5 */
+            width: 1.25rem; /* w-5 */
+            border-radius: 9999px; /* rounded-full */
+            border: 1px solid #d1d5db; /* default border */
+            appearance: none; /* Menghilangkan tampilan default browser */
+            -webkit-appearance: none;
+            cursor: pointer;
+            position: relative;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+        }
+        .selection-section input[type="radio"]:checked {
+            border-color: #2563eb; /* border-blue-600 */
+            background-color: #2563eb; /* bg-blue-600 */
+        }
+        .selection-section input[type="radio"]:checked::after {
+            content: '';
+            display: block;
+            width: 0.5rem; /* Ukuran titik tengah */
+            height: 0.5rem;
+            border-radius: 9999px;
+            background-color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .selection-section input[type="radio"]:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* focus:ring-blue-500 */
+        }
+        .selection-section span.ml-2 {
+            margin-left: 0.5rem;
+        }
+
+        /* Morning selection specific styles */
+        .morning-selection {
+            background-color: #eff6ff; /* bg-blue-50 */
+            border-color: #bfdbfe; /* border-blue-100 */
+        }
+        .morning-selection label.block {
+            color: #1e40af; /* text-blue-800 */
+        }
+        /* Dark mode for morning selection */
+        @media (prefers-color-scheme: dark) {
+            .morning-selection {
+                background-color: rgba(30, 64, 175, 0.2); /* dark:bg-blue-900/20 */
+                border-color: #1e3a8a; /* dark:border-blue-800 */
+            }
+            .morning-selection label.block {
+                color: #93c5fd; /* dark:text-blue-200 */
+            }
+        }
+
+        /* Evening selection specific styles */
+        .evening-selection {
+            background-color: #ecfdf5; /* bg-green-50 */
+            border-color: #a7f3d0; /* border-green-100 */
+        }
+        .evening-selection label.block {
+            color: #065f46; /* text-green-800 */
+        }
+        /* Dark mode for evening selection */
+        @media (prefers-color-scheme: dark) {
+            .evening-selection {
+                background-color: rgba(6, 95, 70, 0.2); /* dark:bg-green-900/20 */
+                border-color: #064e3b; /* dark:border-green-800 */
+            }
+            .evening-selection label.block {
+                color: #6ee7b7; /* dark:text-green-200 */
+            }
+        }
+
+        /* Styling untuk tombol simpan */
+        button#saveScheduleBtn {
+            width: 100%;
+            background-color: #4f46e5; /* bg-indigo-600 */
+            color: #ffffff; /* text-white */
+            font-weight: 700; /* font-bold */
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            transition: all 0.3s ease-in-out; /* transition duration-300 ease-in-out */
+            transform: scale(1); /* transform */
+            border: none;
+            cursor: pointer;
+        }
+        button#saveScheduleBtn:hover {
+            background-color: #4338ca; /* hover:bg-indigo-700 */
+            transform: scale(1.02); /* hover:scale-105 */
+        }
+        button#saveScheduleBtn:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.5), 0 0 0 2px rgba(255, 255, 255, 1); /* focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 */
+        }
+        /* Dark mode for save button focus ring */
+        @media (prefers-color-scheme: dark) {
+            button#saveScheduleBtn:focus {
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.5), 0 0 0 2px #1f2937; /* dark:focus:ring-offset-gray-800 */
+            }
+        }
+
+        /* Styling untuk pesan status */
+        .message {
+            margin-top: 1rem; /* mt-4 */
+            padding: 0.75rem; /* p-3 */
+            border-radius: 0.5rem; /* rounded-lg */
+            text-align: center;
+        }
+        .message.success {
+            background-color: #d1fae5; /* bg-green-100 */
+            color: #065f46; /* text-green-700 */
+        }
+        .message.error {
+            background-color: #fee2e2; /* bg-red-100 */
+            color: #b91c1c; /* text-red-700 */
+        }
+        /* Dark mode for message */
+        @media (prefers-color-scheme: dark) {
+            .message.success {
+                background-color: rgba(6, 95, 70, 0.2); /* dark:bg-green-900/20 */
+                color: #6ee7b7; /* dark:text-green-300 */
+            }
+            .message.error {
+                background-color: rgba(185, 28, 28, 0.2); /* dark:bg-red-900/20 */
+                color: #fca5a5; /* dark:text-red-300 */
+            }
+        }
+
+        /* Styling untuk bagian kontribusi */
+        .contribution-section {
+            margin-top: 1.5rem; /* mt-6 */
+        }
+        .contribution-section h2 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+            text-align: center;
+            color: #1f2937; /* text-gray-800 */
+            margin-bottom: 1rem;
+        }
+        /* Dark mode for contribution section title */
+        @media (prefers-color-scheme: dark) {
+            .contribution-section h2 {
+                color: #e5e7eb; /* dark:text-gray-200 */
+            }
+        }
+        .driver-contribution {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem; /* p-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            border: 1px solid;
+            margin-bottom: 1rem; /* space-y-4 */
+        }
+        .driver-contribution span.text-lg {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 500; /* font-medium */
+            color: #374151; /* text-gray-700 */
+        }
+        /* Dark mode for driver contribution text */
+        @media (prefers-color-scheme: dark) {
+            .driver-contribution span.text-lg {
+                color: #d1d5db; /* dark:text-gray-300 */
+            }
+        }
+        .driver-contribution .actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; /* space-x-2 */
+        }
+        .driver-contribution .indicator {
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            padding: 0.25rem 0.75rem; /* px-3 py-1 */
+            border-radius: 9999px; /* rounded-full */
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; /* animate-pulse */
+        }
+        .driver-contribution .indicator.red {
+            background-color: #fca5a5; /* bg-red-300 */
+            color: #991b1b; /* text-red-900 */
+        }
+        .driver-contribution .indicator.yellow {
+            background-color: #fcd34d; /* bg-yellow-400 */
+            color: #92400e; /* text-yellow-900 */
+        }
+
+        /* Animation for pulse effect */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        .driver-contribution button {
+            background-color: #8b5cf6; /* bg-purple-600 or bg-teal-600 */
+            color: #ffffff; /* text-white */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 700; /* font-bold */
+            padding: 0.5rem 0.75rem; /* py-2 px-3 */
+            border-radius: 0.375rem; /* rounded-md */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            transition: background-color 0.2s ease-in-out; /* transition duration-200 ease-in-out */
+            border: none;
+            cursor: pointer;
+        }
+        .driver-contribution button:hover {
+            background-color: #7c3aed; /* hover:bg-purple-700 or hover:bg-teal-700 */
+        }
+        .driver-contribution button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5); /* focus:ring-2 focus:ring-purple-500 or focus:ring-teal-500 */
+        }
+
+        /* Specific styles for Rama's contribution box */
+        .rama-box {
+            background-color: #f3e8ff; /* bg-purple-50 */
+            border-color: #d8b4fe; /* border-purple-100 */
+        }
+        /* Dark mode for Rama's box */
+        @media (prefers-color-scheme: dark) {
+            .rama-box {
+                background-color: rgba(139, 92, 246, 0.2); /* dark:bg-purple-900/20 */
+                border-color: #5b21b6; /* dark:border-purple-800 */
+            }
+        }
+
+        /* Specific styles for Sandi's contribution box */
+        .sandi-box {
+            background-color: #e0f2f7; /* bg-teal-50 */
+            border-color: #99f6e4; /* border-teal-100 */
+        }
+        /* Dark mode for Sandi's box */
+        @media (prefers-color-scheme: dark) {
+            .sandi-box {
+                background-color: rgba(20, 184, 166, 0.2); /* dark:bg-teal-900/20 */
+                border-color: #0d9488; /* dark:border-teal-800 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jadwal Antar-Jemput Pribadi</h1>
+        <p class="date-display">Hari ini: <span id="todayDate"></span></p>
+
+        <!-- User ID Display -->
+        <div class="user-id-display">
+            ID Pengguna Anda: <span id="userIdDisplay">Memuat...</span>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Pergi (Ke Kantor) -->
+            <div class="selection-section morning-selection">
+                <label class="block">Pergi (Ke Kantor):</label>
+                <div class="radio-group">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="morningDriver" value="rama" id="morningRama">
+                        <span class="ml-2 text-gray-700 dark:text-gray-300">Pak Rama</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="morningDriver" value="sandi" id="morningSandi">
+                        <span class="ml-2 text-gray-700 dark:text-gray-300">Pak Sandi</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Pulang (Ke Kontrakan) -->
+            <div class="selection-section evening-selection">
+                <label class="block">Pulang (Ke Kontrakan):</label>
+                <div class="radio-group">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="eveningDriver" value="rama" id="eveningRama">
+                        <span class="ml-2 text-gray-700 dark:text-gray-300">Pak Rama</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="eveningDriver" value="sandi" id="eveningSandi">
+                        <span class="ml-2 text-gray-700 dark:text-gray-300">Pak Sandi</span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="saveScheduleBtn">Simpan Jadwal</button>
+
+            <div id="messageDisplay" class="message hidden"></div>
+
+            <!-- Status Kontribusi Pengemudi -->
+            <div class="contribution-section">
+                <h2>Status Kontribusi Pengemudi</h2>
+
+                <!-- Kontribusi Pak Rama -->
+                <div class="driver-contribution rama-box">
+                    <span class="text-lg">Pak Rama: <span id="ramaContribution">0.0</span> Poin</span>
+                    <div class="actions">
+                        <span id="ramaIndicator" class="indicator hidden"></span>
+                        <button id="resetRamaBtn">Reset</button>
+                    </div>
+                </div>
+
+                <!-- Kontribusi Pak Sandi -->
+                <div class="driver-contribution sandi-box">
+                    <span class="text-lg">Pak Sandi: <span id="sandiContribution">0.0</span> Poin</span>
+                    <div class="actions">
+                        <span id="sandiIndicator" class="indicator hidden"></span>
+                        <button id="resetSandiBtn">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+        let currentUserId = null;
+        let isAuthReady = false;
+
+        // Mendapatkan referensi elemen DOM
+        const todayDateElement = document.getElementById('todayDate');
+        const userIdDisplayElement = document.getElementById('userIdDisplay');
+        const morningRamaRadio = document.getElementById('morningRama');
+        const morningSandiRadio = document.getElementById('morningSandi');
+        const eveningRamaRadio = document.getElementById('eveningRama');
+        const eveningSandiRadio = document.getElementById('eveningSandi');
+        const saveScheduleBtn = document.getElementById('saveScheduleBtn');
+        const messageDisplay = document.getElementById('messageDisplay');
+        const ramaContributionElement = document.getElementById('ramaContribution');
+        const sandiContributionElement = document.getElementById('sandiContribution');
+        const ramaIndicator = document.getElementById('ramaIndicator');
+        const sandiIndicator = document.getElementById('sandiIndicator');
+        const resetRamaBtn = document.getElementById('resetRamaBtn');
+        const resetSandiBtn = document.getElementById('resetSandiBtn');
+
+        // Menampilkan tanggal hari ini
+        const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        todayDateElement.textContent = today;
+
+        /**
+         * Menampilkan pesan status di UI.
+         * @param {string} msg - Pesan yang akan ditampilkan.
+         * @param {boolean} isError - True jika pesan adalah error, false jika sukses.
+         */
+        function showMessage(msg, isError) {
+            messageDisplay.textContent = msg;
+            messageDisplay.classList.remove('hidden', 'success', 'error');
+            if (isError) {
+                messageDisplay.classList.add('error');
+            } else {
+                messageDisplay.classList.add('success');
+            }
+            // Sembunyikan pesan setelah 5 detik
+            setTimeout(() => {
+                messageDisplay.classList.add('hidden');
+            }, 5000);
+        }
+
+        /**
+         * Menginisialisasi Firebase dan menangani otentikasi.
+         */
+        async function initFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Otentikasi pengguna
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Mendengarkan perubahan status otentikasi
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                    } else {
+                        // Fallback untuk pengguna anonim jika __initial_auth_token tidak terdefinisi
+                        currentUserId = crypto.randomUUID(); // Hasilkan ID acak untuk pengguna yang tidak terotentikasi
+                    }
+                    userIdDisplayElement.textContent = currentUserId;
+                    isAuthReady = true;
+                    console.log("Firebase siap. ID Pengguna:", currentUserId);
+                    // Setelah otentikasi siap, mulai mendengarkan data Firestore
+                    listenToFirestoreData();
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessage("Gagal menginisialisasi Firebase. Silakan coba lagi.", true);
+            }
+        }
+
+        /**
+         * Mendengarkan pembaruan data real-time dari Firestore.
+         */
+        function listenToFirestoreData() {
+            if (!db || !currentUserId || !isAuthReady) {
+                console.warn("Firestore atau ID Pengguna belum siap untuk mendengarkan data.");
+                return;
+            }
+
+            const docRef = doc(db, `artifacts/${appId}/users/${currentUserId}/driver_schedule`, 'current_status');
+
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const rama = data.ramaContribution || 0;
+                    const sandi = data.sandiContribution || 0;
+
+                    ramaContributionElement.textContent = rama.toFixed(1);
+                    sandiContributionElement.textContent = sandi.toFixed(1);
+
+                    // Perbarui indikator Pak Rama
+                    updateIndicator(ramaIndicator, rama);
+                    // Perbarui indikator Pak Sandi
+                    updateIndicator(sandiIndicator, sandi);
+
+                } else {
+                    // Dokumen tidak ada, inisialisasi dengan nilai default
+                    setDoc(docRef, { ramaContribution: 0, sandiContribution: 0, lastUpdated: new Date() })
+                        .catch(error => console.error("Error initializing document:", error));
+                }
+            }, (error) => {
+                console.error("Error listening to Firestore:", error);
+                showMessage("Gagal memuat data jadwal. Silakan periksa koneksi Anda.", true);
+            });
+        }
+
+        /**
+         * Memperbarui status indikator (merah/kuning/sembunyi) berdasarkan kontribusi.
+         * @param {HTMLElement} indicatorElement - Elemen span indikator.
+         * @param {number} contribution - Nilai kontribusi pengemudi.
+         */
+        function updateIndicator(indicatorElement, contribution) {
+            indicatorElement.classList.remove('hidden', 'red', 'yellow');
+            indicatorElement.textContent = '';
+
+            const THRESHOLD_RED = 21; // 3 ahad * 7 poin/ahad
+            const THRESHOLD_YELLOW = 18; // Mendekati 21
+
+            if (contribution >= THRESHOLD_RED) {
+                indicatorElement.textContent = 'Sudah 3 Ahad!';
+                indicatorElement.classList.add('red');
+            } else if (contribution >= THRESHOLD_YELLOW) {
+                indicatorElement.textContent = 'Mendekati 3 Ahad!';
+                indicatorElement.classList.add('yellow');
+            } else {
+                indicatorElement.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Menyimpan jadwal harian dan memperbarui kontribusi.
+         */
+        saveScheduleBtn.addEventListener('click', async () => {
+            if (!db || !currentUserId || !isAuthReady) {
+                showMessage("Aplikasi belum siap. Mohon tunggu.", true);
+                return;
+            }
+
+            const selectedMorningDriver = document.querySelector('input[name="morningDriver"]:checked')?.value;
+            const selectedEveningDriver = document.querySelector('input[name="eveningDriver"]:checked')?.value;
+
+            if (!selectedMorningDriver || !selectedEveningDriver) {
+                showMessage("Harap pilih pengemudi untuk pagi dan pulang.", true);
+                return;
+            }
+
+            let currentRamaContribution = parseFloat(ramaContributionElement.textContent);
+            let currentSandiContribution = parseFloat(sandiContributionElement.textContent);
+
+            // Setiap perjalanan (pagi atau sore) menyumbang 0.5 poin
+            if (selectedMorningDriver === 'rama') {
+                currentRamaContribution += 0.5;
+            } else if (selectedMorningDriver === 'sandi') {
+                currentSandiContribution += 0.5;
+            }
+
+            if (selectedEveningDriver === 'rama') {
+                currentRamaContribution += 0.5;
+            } else if (selectedEveningDriver === 'sandi') {
+                currentSandiContribution += 0.5;
+            }
+
+            try {
+                const docRef = doc(db, `artifacts/${appId}/users/${currentUserId}/driver_schedule`, 'current_status');
+                await setDoc(docRef, {
+                    ramaContribution: currentRamaContribution,
+                    sandiContribution: currentSandiContribution,
+                    lastUpdated: new Date()
+                });
+                showMessage("Jadwal berhasil disimpan!", false);
+                // Reset pilihan setelah menyimpan
+                morningRamaRadio.checked = false;
+                morningSandiRadio.checked = false;
+                eveningRamaRadio.checked = false;
+                eveningSandiRadio.checked = false;
+            } catch (error) {
+                console.error("Error saving schedule:", error);
+                showMessage("Gagal menyimpan jadwal. Silakan coba lagi.", true);
+            }
+        });
+
+        /**
+         * Mereset kontribusi pengemudi tertentu.
+         * @param {string} driver - 'rama' atau 'sandi'.
+         */
+        async function resetContribution(driver) {
+            if (!db || !currentUserId || !isAuthReady) {
+                showMessage("Aplikasi belum siap. Mohon tunggu.", true);
+                return;
+            }
+
+            let currentRamaContribution = parseFloat(ramaContributionElement.textContent);
+            let currentSandiContribution = parseFloat(sandiContributionElement.textContent);
+
+            try {
+                const docRef = doc(db, `artifacts/${appId}/users/${currentUserId}/driver_schedule`, 'current_status');
+                if (driver === 'rama') {
+                    await setDoc(docRef, { ramaContribution: 0, sandiContribution: currentSandiContribution, lastUpdated: new Date() });
+                    showMessage("Poin Pak Rama berhasil direset!", false);
+                } else if (driver === 'sandi') {
+                    await setDoc(docRef, { ramaContribution: currentRamaContribution, sandiContribution: 0, lastUpdated: new Date() });
+                    showMessage("Poin Pak Sandi berhasil direset!", false);
+                }
+            } catch (error) {
+                console.error(`Error resetting ${driver} contribution:`, error);
+                showMessage(`Gagal mereset poin ${driver}. Silakan coba lagi.`, true);
+            }
+        }
+
+        // Menambahkan event listener untuk tombol reset
+        resetRamaBtn.addEventListener('click', () => resetContribution('rama'));
+        resetSandiBtn.addEventListener('click', () => resetContribution('sandi'));
+
+        // Panggil inisialisasi Firebase saat halaman dimuat
+        window.onload = initFirebase;
+    </script>
+</body>
+</html>
