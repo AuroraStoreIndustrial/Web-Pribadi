@@ -7,6 +7,15 @@
     <title>Ghazi Reminder</title>
     <link rel="Icon" type="image/svg" href="Icon3.svg" />
     <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 100%);
             min-height: 100vh;
@@ -33,6 +42,8 @@
             gap: 32px;
             align-items: center;
             min-width: 320px;
+            max-width: 400px;
+            width: 100%;
             transition: background 0.3s, color 0.3s;
         }
 
@@ -46,6 +57,7 @@
             font-size: 2.2rem;
             color: #2563eb;
             letter-spacing: 1px;
+            text-align: center;
         }
 
         body.dark h1 {
@@ -67,6 +79,7 @@
             align-items: center;
             gap: 12px;
             width: 100%;
+            justify-content: center;
         }
 
         .menu-btn:hover {
@@ -118,22 +131,59 @@
             color: #e2e8f0;
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
             main {
-                padding: 24px 8px;
+                padding: 20px 4vw;
                 min-width: unset;
+                max-width: 98vw;
+                border-radius: 12px;
+                gap: 20px;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 16px;
             }
 
             .menu-btn {
-                width: 100%;
-                padding: 16px 0;
                 font-size: 1rem;
+                padding: 14px 0;
+                border-radius: 10px;
+                gap: 8px;
+            }
+
+            .menu-icon {
+                width: 22px;
+                height: 22px;
             }
 
             .theme-select-wrapper {
-                top: 12px;
-                right: 12px;
+                top: 10px;
+                right: 10px;
             }
+
+            .theme-select {
+                font-size: 0.95rem;
+                padding: 0.4rem 2rem 0.4rem 0.7rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            main {
+                padding: 10px 2vw;
+                gap: 12px;
+            }
+
+            .menu-btn {
+                font-size: 0.95rem;
+                padding: 10px 0;
+            }
+        }
+
+        /* Hilangkan horizontal scroll di mobile */
+        html,
+        body {
+            overflow-x: hidden;
         }
     </style>
 </head>
