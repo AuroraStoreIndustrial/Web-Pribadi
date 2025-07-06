@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Pengantaran</title>
+    <link rel="Icon" type="image/svg" href="Icon.svg" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for animations and specific elements */
+        @keyframes scaleIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-scaleIn {
+            animation: scaleIn 0.3s forwards;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Base styles for light mode (default) */
+        body {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            color: #1f2937; /* text-gray-900 */
+        }
+        .main-card {
+            background-color: #ffffff; /* bg-white */
+            border-color: #e5e7eb; /* border-gray-200 */
+            color: #1f2937; /* text-gray-900 */
+        }
+        .points-display-container {
+            background-color: #eef2ff; /* bg-indigo-50 */
+            border-color: #c7d2fe; /* border-indigo-200 */
+        }
+        .points-display-text {
+            color: #4338ca; /* text-indigo-800 */
+        }
+        .form-label {
+            color: #374151; /* text-gray-800 */
+        }
+        .form-input {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            border-color: #d1d5db; /* border-gray-300 */
+            color: #374151; /* text-gray-800 */
+        }
+        .form-radio-checked {
+            color: #4f46e5; /* text-indigo-600 */
+        }
+        .button-gray {
+            background-color: #d1d5db; /* bg-gray-300 */
+            color: #374151; /* text-gray-800 */
+        }
+        .button-gray:hover {
+            background-color: #9ca3af; /* hover:bg-gray-400 */
+        }
+        .no-story-message {
+            color: #6b7280; /* text-gray-600 */
+        }
+        .story-item-bg {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            border-color: #e5e7eb; /* border-gray-200 */
+        }
+
+        /* Dark mode overrides */
+        html.dark body {
+            background-color: #1a202c; /* dark gray background */
+            color: #e2e8f0; /* light gray text */
+        }
+        html.dark .main-card {
+            background-color: #2d3748; /* darker gray for main card */
+            border-color: #4a5568; /* darker border */
+            color: #e2e8f0; /* light gray text */
+        }
+        html.dark .points-display-container {
+            background-color: #4c51bf; /* darker indigo for points display */
+            border-color: #667eea;
+        }
+        html.dark .points-display-text {
+            color: #c3dafe; /* lighter indigo */
+        }
+        html.dark .form-label {
+            color: #e2e8f0; /* light gray text */
+        }
+        html.dark .form-input {
+            background-color: #4a5568; /* dark gray for form inputs */
+            border-color: #667eea;
+            color: #e2e8f0;
+        }
+        html.dark .form-radio-checked {
+            color: #9f7aea; /* lighter indigo */
+        }
+        html.dark .button-gray {
+            background-color: #667eea; /* dark gray for buttons */
+            color: #e2e8f0;
+        }
+        html.dark .button-gray:hover {
+            background-color: #4a5568;
+        }
+        html.dark .no-story-message {
+            color: #a0aec0; /* text-gray-400 */
+        }
+        html.dark .story-item-bg {
+            background-color: #4a5568; /* dark gray for story items */
+            border-color: #667eea;
+        }
+
+        /* Custom border colors for light mode (Tailwind defaults) */
+        .border-yellow-500 { border-color: #f59e0b; }
+        .border-red-500 { border-color: #ef4444; }
+        .border-orange-500 { border-color: #f97316; }
+        .border-indigo-300 { border-color: #a5b4fc; } /* Custom for light mode default outline */
+
+        /* Custom border colors for dark mode (Tailwind defaults) */
+        html.dark .border-yellow-500 { border-color: #fbbf24; }
+        html.dark .border-red-500 { border-color: #f87171; }
+        html.dark .border-orange-500 { border-color: #fb923c; }
+        html.dark .border-gray-600 { border-color: #4a5568; } /* Default dark mode outline */
+
+        /* Specific styles for the theme select dropdown */
+        #theme-select {
+            background-color: #ffffff; /* Explicitly white for light mode */
+            color: #1f2937; /* Dark text for light mode */
+            border: 1px solid #d1d5db; /* Light border for light mode */
+            padding: 0.5rem 2.5rem 0.5rem 0.75rem; /* top/bottom, right, left padding */
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: all 0.3s ease-in-out; /* transition-colors duration-300 */
+            -webkit-appearance: none; /* Remove default arrow on WebKit browsers */
+            -moz-appearance: none; /* Remove default arrow on Firefox */
+            appearance: none; /* Remove default arrow */
+            /* Light mode arrow color (black) */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%231f2937'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em; /* Adjust size of custom arrow */
+        }
+
+        html.dark #theme-select {
+            background-color: #4a5568; /* Dark gray for dark mode */
+            color: #e2e8f0; /* Light text for dark mode */
+            border-color: #667eea; /* Darker border for dark mode */
+            /* Dark mode arrow color (white) */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* Apply similar custom arrow styling to form-input select elements */
+        .form-input[type="number"],
+        .form-input[type="text"] { /* Exclude number/text inputs from custom arrow */
+            padding-right: 0.75rem; /* Reset padding for non-select inputs */
+        }
+
+        .form-input:not([type="number"]):not([type="text"]) { /* Apply to select elements with form-input class */
+            padding: 0.5rem 2.5rem 0.5rem 0.75rem; /* top/bottom, right, left padding */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            /* Light mode arrow color (black) for other selects */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%231f2937'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em;
+        }
+
+        html.dark .form-input:not([type="number"]):not([type="text"]) {
+            /* Dark mode arrow color (white) for other selects */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased transition-colors duration-300">
+    <!-- Tombol Kembali ke Menu Utama di pojok kiri atas -->
+    <div class="fixed top-4 left-4 z-20">
+        <a href="ghazi_reminder.html" class="inline-flex items-center gap-2 bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-100 hover:text-indigo-900 font-semibold py-2 px-4 rounded-lg shadow transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-slate-700 dark:text-indigo-200 dark:border-slate-600 dark:hover:bg-slate-600 dark:hover:text-indigo-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            Menu Utama
+        </a>
+    </div>
+    <div id="app" class="min-h-screen flex items-center justify-center p-4 transition-colors duration-300 relative">
+        <!-- Theme Selector -->
+        <div class="absolute top-4 right-4 z-10">
+            <label for="theme-select" class="sr-only">Pilih Tema</label>
+            <select id="theme-select">
+                <option value="dark">Gelap</option>
+                <option value="light">Terang</option>
+            </select>
+        </div>
+
+        <div class="main-card shadow-lg rounded-2xl p-6 md:p-8 w-full max-w-md transition-colors duration-300">
+            <h1 class="text-3xl font-extrabold text-center mb-6 text-indigo-700 dark:text-indigo-400">
+                Jadwal Pengantaran
+            </h1>
+
+            <!-- Current Points Display -->
+            <div class="points-display-container rounded-xl shadow-inner p-4 transition-colors duration-300">
+                <h2 class="text-xl font-semibold mb-3 points-display-text">Poin Saat Ini:</h2>
+                <div class="flex justify-between items-center text-lg font-medium">
+                    <p id="sandi-points-display" class="p-2 rounded-lg transition-colors duration-300 border-2 border-transparent points-display-text">
+                        Pak Sandi: <span class="font-bold">0.0</span>
+                    </p>
+                    <p id="rama-points-display" class="p-2 rounded-lg transition-colors duration-300 border-2 border-transparent points-display-text">
+                        Pak Rama: <span class="font-bold">0.0</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Trip Input Section - Radio buttons -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mt-6 mb-4 text-center form-label">Catat Perjalanan Baru</h2>
+                <div class="flex flex-col space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2 form-label">Pergi dengan:</label>
+                        <div class="flex justify-around space-x-4">
+                            <label class="flex items-center space-x-2 cursor-pointer transition-all duration-200 ease-in-out hover:scale-105">
+                                <input type="radio" name="goDriver" value="Sandi" id="go-sandi" class="form-radio h-5 w-5 form-radio-checked focus:ring-indigo-500 transition-colors duration-200">
+                                <span class="text-lg font-medium form-label">Pak Sandi</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer transition-all duration-200 ease-in-out hover:scale-105">
+                                <input type="radio" name="goDriver" value="Rama" id="go-rama" class="form-radio h-5 w-5 form-radio-checked focus:ring-indigo-500 transition-colors duration-200">
+                                <span class="text-lg font-medium form-label">Pak Rama</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2 form-label">Pulang dengan:</label>
+                        <div class="flex justify-around space-x-4">
+                            <label class="flex items-center space-x-2 cursor-pointer transition-all duration-200 ease-in-out hover:scale-105">
+                                <input type="radio" name="returnDriver" value="Sandi" id="return-sandi" class="form-radio h-5 w-5 form-radio-checked focus:ring-indigo-500 transition-colors duration-200">
+                                <span class="text-lg font-medium form-label">Pak Sandi</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer transition-all duration-200 ease-in-out hover:scale-105">
+                                <input type="radio" name="returnDriver" value="Rama" id="return-rama" class="form-radio h-5 w-5 form-radio-checked focus:ring-indigo-500 transition-colors duration-200">
+                                <span class="text-lg font-medium form-label">Pak Rama</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button id="add-trip-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" disabled>
+                        Tambahkan Perjalanan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-4 mb-8">
+                <button id="edit-points-btn" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                    Edit Poin
+                </button>
+                <button id="view-story-btn" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                    Lihat Riwayat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Points Modal -->
+    <div id="edit-points-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300">
+        <div class="main-card rounded-2xl p-6 md:p-8 shadow-2xl w-full max-w-sm transform scale-95 opacity-0 animate-scaleIn transition-all duration-300 ease-out">
+            <h2 class="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-400 text-center">Edit Poin</h2>
+            
+            <!-- Input for Pak Sandi's points -->
+            <div class="mb-4">
+                <label for="sandi-whole-input" class="block text-sm font-medium mb-2 form-label">Poin Pak Sandi:</label>
+                <div class="flex items-center space-x-2">
+                    <input
+                        id="sandi-whole-input"
+                        type="number"
+                        min="0"
+                        max="21"
+                        class="flex-grow p-3 rounded-lg form-input focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                        placeholder="00"
+                    />
+                    <span class="text-xl font-bold text-gray-700 dark:text-gray-300">|</span>
+                    <input
+                        id="sandi-half-input"
+                        type="number"
+                        min="0"
+                        max="5"
+                        class="w-20 p-3 rounded-lg form-input text-center focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                        placeholder="0"
+                    />
+                </div>
+            </div>
+
+            <!-- Input for Pak Rama's points -->
+            <div class="mb-6">
+                <label for="rama-whole-input" class="block text-sm font-medium mb-2 form-label">Poin Pak Rama:</label>
+                <div class="flex items-center space-x-2">
+                    <input
+                        id="rama-whole-input"
+                        type="number"
+                        min="0"
+                        max="21"
+                        class="flex-grow p-3 rounded-lg form-input focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                        placeholder="00"
+                    />
+                    <span class="text-xl font-bold text-gray-700 dark:text-gray-300">|</span>
+                    <input
+                        id="rama-half-input"
+                        type="number"
+                        min="0"
+                        max="5"
+                        class="w-20 p-3 rounded-lg form-input text-center focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                        placeholder="0"
+                    />
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button id="cancel-edit-btn" class="button-gray hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    Batal
+                </button>
+                <button id="save-edit-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Story Modal -->
+    <div id="story-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300">
+        <div class="main-card rounded-2xl p-6 md:p-8 shadow-2xl w-full max-w-md transform scale-95 opacity-0 animate-scaleIn transition-all duration-300 ease-out">
+            <h2 class="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-400 text-center">Riwayat Poin 21</h2>
+            
+            <!-- Filter and Sort Controls -->
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0 sm:space-x-4">
+                <div class="w-full sm:w-1/2">
+                    <label for="filter-driver" class="block text-sm font-medium mb-1 form-label">Filter Pengemudi:</label>
+                    <select id="filter-driver" class="w-full p-2 rounded-lg form-input focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200">
+                        <option value="Semua">Semua</option>
+                        <option value="Pak Sandi">Pak Sandi</option>
+                        <option value="Pak Rama">Pak Rama</option>
+                    </select>
+                </div>
+                <div class="w-full sm:w-1/2">
+                    <label for="sort-order" class="block text-sm font-medium mb-1 form-label">Urutkan Berdasarkan:</label>
+                    <select id="sort-order" class="w-full p-2 rounded-lg form-input focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200">
+                        <option value="newest">Tanggal Terbaru</option>
+                        <option value="oldest">Tanggal Terlama</option>
+                    </select>
+                </div>
+            </div>
+
+            <ul id="story-list" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                <!-- Story items will be inserted here by JavaScript -->
+            </ul>
+            <p id="no-story-message" class="text-center no-story-message">Belum ada riwayat.</p>
+            <div class="flex justify-end mt-6">
+                <button id="close-story-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state variables
+        let sandiPoints = 0;
+        let ramaPoints = 0;
+        let story = [];
+        let theme = 'dark'; // Default theme
+
+        // DOM Elements
+        const sandiPointsDisplay = document.getElementById('sandi-points-display').querySelector('span');
+        const ramaPointsDisplay = document.getElementById('rama-points-display').querySelector('span');
+        const goSandiRadio = document.getElementById('go-sandi');
+        const goRamaRadio = document.getElementById('go-rama');
+        const returnSandiRadio = document.getElementById('return-sandi');
+        const returnRamaRadio = document.getElementById('return-rama');
+        const addTripBtn = document.getElementById('add-trip-btn');
+        const editPointsBtn = document.getElementById('edit-points-btn');
+        const viewStoryBtn = document.getElementById('view-story-btn');
+        const themeSelect = document.getElementById('theme-select');
+        const appContainer = document.getElementById('app');
+
+        // Edit Modal Elements
+        const editPointsModal = document.getElementById('edit-points-modal');
+        const sandiWholeInput = document.getElementById('sandi-whole-input');
+        const sandiHalfInput = document.getElementById('sandi-half-input');
+        const ramaWholeInput = document.getElementById('rama-whole-input');
+        const ramaHalfInput = document.getElementById('rama-half-input');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const saveEditBtn = document.getElementById('save-edit-btn');
+
+        // Story Modal Elements
+        const storyModal = document.getElementById('story-modal');
+        const storyList = document.getElementById('story-list');
+        const noStoryMessage = document.getElementById('no-story-message');
+        const closeStoryBtn = document.getElementById('close-story-btn');
+        const filterDriverSelect = document.getElementById('filter-driver');
+        const sortOrderSelect = document.getElementById('sort-order');
+
+        // --- Helper Functions ---
+
+        // Function to load state from localStorage
+        function loadState() {
+            const savedSandiPoints = localStorage.getItem('sandiPoints');
+            const savedRamaPoints = localStorage.getItem('ramaPoints');
+            const savedStory = localStorage.getItem('story');
+            const savedTheme = localStorage.getItem('theme');
+
+            if (savedSandiPoints !== null) {
+                sandiPoints = parseFloat(savedSandiPoints);
+            }
+            if (savedRamaPoints !== null) {
+                ramaPoints = parseFloat(savedRamaPoints);
+            }
+            if (savedStory !== null) {
+                story = JSON.parse(savedStory).map(item => ({
+                    ...item,
+                    timestamp: typeof item.timestamp === 'string' ? parseInt(item.timestamp) : item.timestamp
+                }));
+            }
+            if (savedTheme !== null) {
+                theme = savedTheme;
+            } else {
+                theme = 'dark'; // Default theme
+            }
+            applyTheme(theme);
+            updateDisplay();
+        }
+
+        // Function to save state to localStorage
+        function saveState() {
+            localStorage.setItem('sandiPoints', sandiPoints.toString());
+            localStorage.setItem('ramaPoints', ramaPoints.toString());
+            localStorage.setItem('story', JSON.stringify(story));
+            localStorage.setItem('theme', theme);
+        }
+
+        // Function to apply theme
+        function applyTheme(selectedTheme) {
+            if (selectedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            themeSelect.value = selectedTheme;
+        }
+
+        // Helper function to get point indicator classes for outlines
+        function getPointIndicatorClasses(points) {
+            let classes = 'border-2 transition-colors duration-300'; // Always have a border
+
+            if (points >= 20.0 && points < 21.0) {
+                // Approaching 21 - Kuning (outline)
+                classes += ' border-yellow-500';
+            } else if (points >= 21.0 && points < 22.0) {
+                // At 21 - Merah (outline)
+                classes += ' border-red-500';
+            } else if (points >= 22.0 && points < 25.0) {
+                // Approaching 25 - Orange (outline)
+                classes += ' border-orange-500';
+            } else if (points === 25.0) {
+                // Exactly 25 - Merah Berkedip (outline + pulse)
+                classes += ' border-red-500 animate-pulse';
+            } else {
+                // Default border color (subtle indigo in light, subtle gray in dark)
+                classes += ' border-indigo-300 dark:border-gray-600';
+            }
+            return classes;
+        }
+
+        // Function to update the main point display
+        function updateDisplay() {
+            sandiPointsDisplay.textContent = sandiPoints.toFixed(1);
+            ramaPointsDisplay.textContent = ramaPoints.toFixed(1);
+
+            // Apply indicator classes to the parent <p> element, preserving existing classes
+            const sandiP = document.getElementById('sandi-points-display');
+            const ramaP = document.getElementById('rama-points-display');
+
+            // Reset classes to base and then add dynamic ones
+            sandiP.className = 'p-2 rounded-lg transition-colors duration-300 points-display-text ' + getPointIndicatorClasses(sandiPoints);
+            ramaP.className = 'p-2 rounded-lg transition-colors duration-300 points-display-text ' + getPointIndicatorClasses(ramaPoints);
+        }
+
+        // Helper to decompose total points into whole and half for display in separate inputs
+        function decomposePoints(totalPoints) {
+            const whole = Math.floor(totalPoints);
+            const half = (totalPoints - whole) >= 0.5 ? 5 : 0; // Display 5 for 0.5, 0 for 0
+            return { whole: whole, half: half }; // Return numbers
+        }
+
+        // --- Event Handlers ---
+
+        // Function to update the state of the "Tambahkan Perjalanan" button
+        function updateAddTripButtonState() {
+            const goDriverSelected = goSandiRadio.checked || goRamaRadio.checked;
+            const returnDriverSelected = returnSandiRadio.checked || returnRamaRadio.checked;
+            addTripBtn.disabled = !(goDriverSelected && returnDriverSelected);
+            if (addTripBtn.disabled) {
+                addTripBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                addTripBtn.classList.remove('hover:bg-indigo-700', 'transform', 'hover:scale-105');
+            } else {
+                addTripBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                addTripBtn.classList.add('hover:bg-indigo-700', 'transform', 'hover:scale-105');
+            }
+        }
+
+        // Handle adding a new trip
+        addTripBtn.addEventListener('click', () => {
+            const goDriver = document.querySelector('input[name="goDriver"]:checked')?.value;
+            const returnDriver = document.querySelector('input[name="returnDriver"]:checked')?.value;
+
+            if (!goDriver || !returnDriver) {
+                alert("Mohon pilih pengemudi untuk 'Pergi' dan 'Pulang'.");
+                return;
+            }
+
+            let tempSandiPoints = sandiPoints;
+            let tempRamaPoints = ramaPoints;
+
+            // Each leg of the trip (go or return) adds 0.5 points
+            if (goDriver === 'Sandi') {
+                tempSandiPoints += 0.5;
+            } else if (goDriver === 'Rama') {
+                tempRamaPoints += 0.5;
+            }
+
+            if (returnDriver === 'Sandi') {
+                tempSandiPoints += 0.5;
+            } else if (returnDriver === 'Rama') {
+                tempRamaPoints += 0.5;
+            }
+
+            // Apply the new 21-point logic: reset only if it goes *above* 21
+            if (sandiPoints < 21 && tempSandiPoints >= 21) {
+                // If it was below 21 and now is 21 or more, just set it to tempSandiPoints
+                sandiPoints = tempSandiPoints;
+            } else if (sandiPoints >= 21 && tempSandiPoints > 21) {
+                // If it was already 21 or more, and now it goes even higher, then reset
+                story.push({
+                    date: new Date().toLocaleString(),
+                    timestamp: Date.now(), // Add timestamp for sorting
+                    person: 'Pak Sandi',
+                    pointsReached: 21
+                });
+                sandiPoints = tempSandiPoints - 20;
+            } else {
+                sandiPoints = tempSandiPoints;
+            }
+
+            if (ramaPoints < 21 && tempRamaPoints >= 21) {
+                ramaPoints = tempRamaPoints;
+            } else if (ramaPoints >= 21 && tempRamaPoints > 21) {
+                story.push({
+                    date: new Date().toLocaleString(),
+                    timestamp: Date.now(), // Add timestamp for sorting
+                    person: 'Pak Rama',
+                    pointsReached: 21
+                });
+                ramaPoints = tempRamaPoints - 20;
+            } else {
+                ramaPoints = tempRamaPoints;
+            }
+
+            updateDisplay();
+            saveState();
+
+            // Uncheck radio buttons
+            goSandiRadio.checked = false;
+            goRamaRadio.checked = false;
+            returnSandiRadio.checked = false;
+            returnRamaRadio.checked = false;
+
+            updateAddTripButtonState(); // Update button state after adding trip
+        });
+
+        // Open Edit Points Modal
+        editPointsBtn.addEventListener('click', () => {
+            const sandiDecomposed = decomposePoints(sandiPoints);
+            // Convert to string to allow empty input for typing
+            sandiWholeInput.value = sandiDecomposed.whole === 0 && sandiPoints === 0 ? '' : sandiDecomposed.whole.toString();
+            sandiHalfInput.value = sandiDecomposed.half === 0 && sandiPoints % 1 === 0 ? '' : sandiDecomposed.half.toString();
+
+            const ramaDecomposed = decomposePoints(ramaPoints);
+            ramaWholeInput.value = ramaDecomposed.whole === 0 && ramaPoints === 0 ? '' : ramaDecomposed.whole.toString();
+            ramaHalfInput.value = ramaDecomposed.half === 0 && ramaPoints % 1 === 0 ? '' : ramaDecomposed.half.toString();
+
+            // Ensure borders are reset when opening the modal
+            sandiHalfInput.classList.remove('border-red-500');
+            sandiHalfInput.classList.add('border-gray-300', 'dark:border-gray-600'); // Re-add default border
+            ramaHalfInput.classList.remove('border-red-500');
+            ramaHalfInput.classList.add('border-gray-300', 'dark:border-gray-600'); // Re-add default border
+
+            editPointsModal.classList.remove('hidden');
+        });
+
+        // Close Edit Points Modal
+        cancelEditBtn.addEventListener('click', () => {
+            editPointsModal.classList.add('hidden');
+        });
+
+        // Save Edited Points
+        saveEditBtn.addEventListener('click', () => {
+            let newSandiWhole = parseInt(sandiWholeInput.value) || 0;
+            let newSandiHalf = parseInt(sandiHalfInput.value) || 0;
+            let newRamaWhole = parseInt(ramaWholeInput.value) || 0;
+            let newRamaHalf = parseInt(ramaHalfInput.value) || 0;
+
+            // Apply validation for whole part (max 21)
+            newSandiWhole = Math.min(newSandiWhole, 21);
+            newRamaWhole = Math.min(newRamaWhole, 21);
+
+            // Apply validation for half part (only 5 allowed, otherwise 0)
+            newSandiHalf = (newSandiHalf === 5) ? 0.5 : 0;
+            newRamaHalf = (newRamaHalf === 5) ? 0.5 : 0;
+
+            let calculatedSandi = newSandiWhole + newSandiHalf;
+            let calculatedRama = newRamaWhole + newRamaHalf;
+
+            let hasError = false;
+            // Check if total points exceed 21.0
+            if (calculatedSandi > 21.0) {
+                alert("Total poin Pak Sandi tidak boleh melebihi 21.0. Mohon perbaiki input.");
+                sandiHalfInput.classList.add('border-red-500'); // Apply red border
+                sandiHalfInput.classList.remove('border-gray-300', 'dark:border-gray-600');
+                hasError = true;
+            } else {
+                sandiHalfInput.classList.remove('border-red-500'); // Remove red border if fixed
+                sandiHalfInput.classList.add('border-gray-300', 'dark:border-gray-600');
+            }
+
+            if (calculatedRama > 21.0) {
+                alert("Total poin Pak Rama tidak boleh melebihi 21.0. Mohon perbaiki input.");
+                ramaHalfInput.classList.add('border-red-500'); // Apply red border
+                ramaHalfInput.classList.remove('border-gray-300', 'dark:border-gray-600');
+                hasError = true;
+            } else {
+                ramaHalfInput.classList.remove('border-red-500'); // Remove red border if fixed
+                ramaHalfInput.classList.add('border-gray-300', 'dark:border-gray-600');
+            }
+
+            if (hasError) {
+                return; // Stop the save process if there's an error
+            }
+
+            // Apply the new 21-point logic for manual edits (only if no error)
+            if (sandiPoints < 21 && calculatedSandi >= 21) {
+                sandiPoints = calculatedSandi;
+            } else if (sandiPoints >= 21 && calculatedSandi > 21) {
+                story.push({
+                    date: new Date().toLocaleString(),
+                    timestamp: Date.now(), // Add timestamp for sorting
+                    person: 'Pak Sandi',
+                    pointsReached: 21
+                });
+                sandiPoints = calculatedSandi - 20;
+            } else {
+                sandiPoints = calculatedSandi;
+            }
+
+            if (ramaPoints < 21 && calculatedRama >= 21) {
+                ramaPoints = calculatedRama;
+            } else if (ramaPoints >= 21 && calculatedRama > 21) {
+                story.push({
+                    date: new Date().toLocaleString(),
+                    timestamp: Date.now(), // Add timestamp for sorting
+                    person: 'Pak Rama',
+                    pointsReached: 21
+                });
+                ramaPoints = calculatedRama - 20;
+            } else {
+                ramaPoints = calculatedRama;
+            }
+
+            updateDisplay();
+            saveState();
+            editPointsModal.classList.add('hidden');
+        });
+
+        // --- Input Validation for Edit Modal (Live) ---
+        // Combined function for live validation and styling
+        function handleEditInput(wholeInput, halfInput) {
+            let wholeVal = parseInt(wholeInput.value);
+            let halfVal = parseInt(halfInput.value);
+
+            // Validate and cap whole part (00)
+            if (wholeInput.value === '') {
+                wholeVal = 0; // Treat empty as 0 for calculation, but keep input empty
+            } else if (isNaN(wholeVal) || wholeVal < 0) {
+                wholeVal = 0;
+                wholeInput.value = '0'; // Force to '0' if invalid number
+            } else if (wholeVal > 21) {
+                wholeVal = 21;
+                wholeInput.value = '21'; // Force to '21' if over max
+            } else {
+                wholeInput.value = wholeVal.toString(); // Remove leading zeros if present
+            }
+
+
+            // Validate half part (0) - only accepts 5, otherwise 0
+            if (halfInput.value === '') {
+                halfVal = 0; // Treat empty as 0 for calculation, but keep input empty
+            } else if (isNaN(halfVal) || halfVal !== 5) {
+                halfVal = 0;
+                halfInput.value = '0'; // Force to '0' if invalid number
+            } else {
+                halfVal = 5; // Keep it as 5 for display
+                halfInput.value = '5'; // Force to '5' if valid
+            }
+
+            // Calculate combined value for immediate visual feedback
+            const combinedValue = wholeVal + (halfVal === 5 ? 0.5 : 0);
+
+            // Apply red border to half-input if total exceeds 21.0
+            if (combinedValue > 21.0) {
+                halfInput.classList.add('border-red-500');
+                halfInput.classList.remove('border-gray-300', 'dark:border-gray-600'); // Remove default border
+            } else {
+                halfInput.classList.remove('border-red-500');
+                halfInput.classList.add('border-gray-300', 'dark:border-gray-600'); // Add default border back
+            }
+        }
+
+        sandiWholeInput.addEventListener('input', () => handleEditInput(sandiWholeInput, sandiHalfInput));
+        sandiHalfInput.addEventListener('input', () => handleEditInput(sandiWholeInput, sandiHalfInput));
+        ramaWholeInput.addEventListener('input', () => handleEditInput(ramaWholeInput, ramaHalfInput));
+        ramaHalfInput.addEventListener('input', () => handleEditInput(ramaWholeInput, ramaHalfInput));
+
+
+        // Function to render the story list based on filters and sort order
+        function renderStoryList() {
+            storyList.innerHTML = ''; // Clear previous list
+            const filter = filterDriverSelect.value;
+            const sort = sortOrderSelect.value;
+
+            let filteredStory = story;
+
+            // Apply filter
+            if (filter !== 'Semua') {
+                filteredStory = story.filter(entry => entry.person === filter);
+            }
+
+            // Apply sort
+            filteredStory.sort((a, b) => {
+                if (sort === 'newest') {
+                    return b.timestamp - a.timestamp; // Newest first
+                } else {
+                    return a.timestamp - b.timestamp; // Oldest first
+                }
+            });
+
+            if (filteredStory.length === 0) {
+                noStoryMessage.classList.remove('hidden');
+            } else {
+                noStoryMessage.classList.add('hidden');
+                filteredStory.forEach((entry, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'flex justify-between items-center p-3 story-item-bg rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 transition-all duration-200 ease-in-out hover:shadow-md';
+                    listItem.innerHTML = `
+                        <span class="text-sm md:text-base">
+                            <span class="font-semibold">${entry.person}</span> mencapai ${entry.pointsReached} poin pada ${entry.date}
+                        </span>
+                        <button class="delete-story-btn ml-4 bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1.5 px-3 rounded-full shadow-sm transition duration-300 ease-in-out transform hover:scale-105" data-index="${story.indexOf(entry)}">
+                            Hapus
+                        </button>
+                    `;
+                    storyList.appendChild(listItem);
+                });
+
+                // Add event listeners for delete buttons in story modal
+                document.querySelectorAll('.delete-story-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const indexToDelete = parseInt(e.target.dataset.index);
+                        story.splice(indexToDelete, 1); // Remove item from array
+                        saveState(); // Save updated story
+                        renderStoryList(); // Re-render story list after deletion
+                    });
+                });
+            }
+        }
+
+
+        // Open Story Modal
+        viewStoryBtn.addEventListener('click', () => {
+            renderStoryList(); // Render story with current filters/sort
+            storyModal.classList.remove('hidden');
+        });
+
+        // Close Story Modal
+        closeStoryBtn.addEventListener('click', () => {
+            storyModal.classList.add('hidden');
+        });
+
+        // Event listeners for filter and sort changes
+        filterDriverSelect.addEventListener('change', renderStoryList);
+        sortOrderSelect.addEventListener('change', renderStoryList);
+
+        // Theme selection handler
+        themeSelect.addEventListener('change', (e) => {
+            theme = e.target.value;
+            applyTheme(theme);
+            saveState();
+        });
+
+        // Initial load and display update
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            updateDisplay();
+            updateAddTripButtonState(); // Set initial button state
+            // Add event listeners for radio buttons to update button state
+            document.querySelectorAll('input[name="goDriver"]').forEach(radio => {
+                radio.addEventListener('change', updateAddTripButtonState);
+            });
+            document.querySelectorAll('input[name="returnDriver"]').forEach(radio => {
+                radio.addEventListener('change', updateAddTripButtonState);
+            });
+        });
+    </script>
+</body>
+</html>

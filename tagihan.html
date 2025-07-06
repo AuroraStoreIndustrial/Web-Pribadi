@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tagihan</title>
+    <link rel="Icon" type="image/svg" href="Icon2.svg" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Gaya kustom untuk font Inter dan estetika umum */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Latar belakang abu-abu terang */
+            display: flex;
+            flex-direction: column; /* Mengatur item dalam kolom */
+            justify-content: flex-start; /* Mulai dari atas */
+            align-items: center; /* Pusatkan secara horizontal */
+            min-height: 100vh;
+            margin: 0;
+            padding: 0; /* Hapus padding body, akan ditangani oleh header dan container */
+            box-sizing: border-box;
+            transition: background-color 0.3s ease; /* Transisi halus untuk perubahan tema */
+        }
+        /* Gaya mode gelap */
+        .dark body {
+            background-color: #0f172a; /* Latar belakang lebih gelap untuk mode gelap (slate-900) */
+        }
+
+        /* Gaya header baru untuk tombol dan dropdown */
+        .app-header {
+            width: 100%;
+            display: flex;
+            flex-direction: row; /* Default: samping-sampingan */
+            justify-content: space-between; /* Pisahkan item ke ujung */
+            align-items: center;
+            padding: 1rem; /* Padding untuk header */
+            box-sizing: border-box;
+            margin-bottom: 1rem; /* Jarak antara header dan container utama */
+        }
+
+        /* Media query untuk layar kecil (misalnya, ponsel) */
+        @media (max-width: 640px) { /* Tailwind's 'sm' breakpoint */
+            .app-header {
+                flex-direction: column; /* Tumpuk item secara vertikal */
+                align-items: flex-start; /* Sejajarkan ke kiri */
+                gap: 1rem; /* Jarak antar grup tombol dan dropdown */
+            }
+            .top-left-buttons {
+                width: 100%; /* Ambil lebar penuh */
+                justify-content: flex-start; /* Sejajarkan tombol ke kiri */
+            }
+            .theme-select-wrapper {
+                width: 100%; /* Ambil lebar penuh */
+                text-align: left; /* Sejajarkan dropdown ke kiri */
+            }
+            .theme-select {
+                width: 100%; /* Dropdown mengisi lebar penuh */
+            }
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* Sudut lebih membulat */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Bayangan lebih lembut */
+            padding: 2.5rem; /* Padding ditingkatkan */
+            max-width: 600px; /* Batas lebar maksimum untuk desktop */
+            width: 100%; /* Memastikan mengisi lebar penuh di layar kecil */
+            text-align: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1rem; /* Tambahkan margin bawah agar tidak terlalu mepet ke bawah */
+        }
+        .dark .container {
+            background-color: #1e293b; /* Latar belakang kontainer lebih gelap (slate-800) */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .section-card {
+            background-color: #f9fafb; /* Sedikit lebih gelap dari body untuk kontras */
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e5e7eb; /* Garis tepi terang */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .dark .section-card {
+            background-color: #334155; /* Latar belakang kartu bagian lebih gelap (slate-700) */
+            border-color: #1e293b; /* Garis tepi lebih gelap */
+        }
+        .current-payer {
+            font-size: 2.25rem; /* Teks lebih besar untuk pembayar saat ini */
+            font-weight: 700; /* Tebal */
+            color: #4f46e5; /* Warna indigo */
+            margin-top: 0.75rem;
+            margin-bottom: 1rem;
+            transition: color 0.3s ease;
+        }
+        .dark .current-payer {
+            color: #a5b4fc; /* Indigo lebih terang untuk mode gelap (indigo-300) */
+        }
+        .button-primary {
+            background-color: #6366f1; /* Indigo 500 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* Tombol membulat */
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            border: none;
+        }
+        .button-primary:hover {
+            background-color: #4f46e5; /* Indigo lebih gelap saat hover */
+            transform: translateY(-2px); /* Efek sedikit terangkat */
+        }
+        .button-primary:active {
+            transform: translateY(0); /* Efek ditekan */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        /* Warna teks untuk mode gelap */
+        .dark .text-gray-900 {
+            color: #f1f5f9; /* Teks terang untuk mode gelap (slate-100) */
+        }
+        .dark .text-gray-800 {
+            color: #e2e8f0; /* Teks lebih terang untuk mode gelap (slate-200) */
+        }
+        .dark .text-gray-600 {
+            color: #cbd5e0; /* Teks bahkan lebih terang untuk mode gelap (slate-300) */
+        }
+        /* Gaya dropdown tema */
+        .theme-select {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.5rem 2.5rem 0.5rem 1rem; /* Padding kanan ditingkatkan untuk ruang teks */
+            font-size: 1rem;
+            color: #4a5568;
+            appearance: none; /* Hapus panah default */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        .dark .theme-select {
+            background-color: #334155; /* Latar belakang dropdown lebih gelap (slate-700) */
+            border-color: #1e293b; /* Garis tepi dropdown lebih gelap (slate-800) */
+            color: #f1f5f9; /* Teks terang untuk dropdown mode gelap */
+        }
+        .theme-select-wrapper {
+            position: relative; /* Kembali ke posisi relatif di dalam header */
+            display: inline-block;
+        }
+        .theme-select-wrapper::after {
+            content: '▼'; /* Panah kustom */
+            position: absolute;
+            right: 10px; /* Nilai kanan dikurangi untuk memindahkan panah lebih dekat ke tepi */
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #4a5568;
+        }
+        .dark .theme-select-wrapper::after {
+            color: #f1f5f9; /* Panah terang untuk mode gelap */
+        }
+
+        /* Gaya tombol pengaturan dan riwayat */
+        .top-left-buttons {
+            display: flex;
+            gap: 1rem; /* Jarak antar tombol */
+        }
+        /* Media query untuk menumpuk tombol di layar kecil */
+        @media (max-width: 640px) {
+            .top-left-buttons {
+                flex-direction: column; /* Tumpuk tombol secara vertikal */
+                gap: 0.5rem; /* Kurangi jarak antar tombol saat ditumpuk */
+            }
+            .action-button {
+                width: 100%; /* Tombol mengisi lebar penuh saat ditumpuk */
+            }
+        }
+
+        .action-button {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        .action-button:hover {
+            background-color: #4f46e5;
+            transform: translateY(-2px);
+        }
+        .action-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Gaya modal (umum untuk pengaturan dan pesan) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Overlay gelap */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20; /* Di atas semua konten lain */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 400px; /* Lebar maksimum modal pengaturan */
+            width: 90%; /* Memastikan mengisi lebar di layar kecil */
+            text-align: left;
+            position: relative;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .dark .modal-content {
+            background-color: #2d3748; /* Latar belakang modal gelap */
+            color: #e2e8f0; /* Teks terang di modal gelap */
+        }
+        .modal-close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        .dark .modal-close-button {
+            color: #cbd5e0;
+        }
+        .checkbox-container, .select-container {
+            margin-bottom: 1rem;
+        }
+        .checkbox-container label, .select-container label {
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+        }
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: #6366f1; /* Warna aksen untuk checkbox */
+        }
+        .select-container select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            background-color: #ffffff;
+            color: #4a5568;
+            font-size: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        .dark .select-container select {
+            background-color: #334155;
+            border-color: #1e293b;
+            color: #f1f5f9;
+        }
+        .select-container {
+            position: relative;
+        }
+        .select-container::after {
+            content: '▼';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(0%); /* Adjusted for select box padding */
+            pointer-events: none;
+            color: #4a5568;
+        }
+        .dark .select-container::after {
+            color: #f1f5f9;
+        }
+        /* Gaya untuk riwayat pembayaran di dalam modal */
+        .history-modal-content {
+            max-width: 500px; /* Lebar modal riwayat */
+        }
+        .history-modal-content .history-list {
+            max-height: 300px; /* Batasi tinggi untuk scroll */
+            overflow-y: auto; /* Aktifkan scroll vertikal */
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            background-color: #f9fafb; /* Latar belakang daftar riwayat */
+            text-align: left;
+            font-size: 0.9rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+        .dark .history-modal-content .history-list {
+            background-color: #334155;
+            border-color: #1e293b;
+            color: #cbd5e0;
+        }
+        .history-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        .dark .history-item {
+            border-bottom: 1px dashed #4a5568;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .clear-history-button {
+            background-color: #ef4444; /* Merah untuk hapus */
+            margin-top: 1rem;
+        }
+        .clear-history-button:hover {
+            background-color: #dc2626;
+        }
+
+        /* Gaya untuk modal pesan/konfirmasi kustom */
+        .message-modal-content {
+            max-width: 350px; /* Lebih kecil dari modal pengaturan */
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .message-modal-content .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1a202c;
+        }
+        .dark .message-modal-content .modal-title {
+            color: #e2e8f0;
+        }
+        .message-modal-content .modal-message {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            color: #4a5568;
+        }
+        .dark .message-modal-content .modal-message {
+            color: #cbd5e0;
+        }
+        .message-modal-content .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .message-modal-content .modal-buttons button {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+        .message-modal-content .modal-buttons .button-ok {
+            background-color: #6366f1;
+            color: white;
+        }
+        .message-modal-content .modal-buttons .button-ok:hover {
+            background-color: #4f46e5;
+        }
+        .message-modal-content .modal-buttons .button-cancel {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        .dark .message-modal-content .modal-buttons .button-cancel {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+        .message-modal-content .modal-buttons .button-cancel:hover {
+            background-color: #cbd5e0;
+        }
+        .dark .message-modal-content .modal-buttons .button-cancel:hover {
+            background-color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <!-- Tombol Pengaturan, Riwayat, dan Kembali ke Menu Utama -->
+        <div class="top-left-buttons">
+            <a href="ghazi_reminder.html" class="action-button flex items-center gap-2" style="text-decoration:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                Menu Utama
+            </a>
+            <button id="settingsButton" class="action-button">Pengaturan</button>
+            <button id="showHistoryButton" class="action-button">Lihat Riwayat</button>
+        </div>
+
+        <!-- Dropdown Tema -->
+        <div class="theme-select-wrapper">
+            <select id="themeSwitcher" class="theme-select">
+                <option value="dark">Gelap</option>
+                <option value="light">Terang</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-8">Tagihan</h1>
+
+        <!-- Bagian Pembayaran Listrik -->
+        <div class="section-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Pembayaran Listrik</h2>
+            <p class="text-lg text-gray-600">Giliran saat ini:</p>
+            <div id="currentElectricityPayer" class="current-payer"></div>
+            <button id="markElectricityPaid" class="button-primary">Tandai Listrik Sudah Dibayar</button>
+        </div>
+
+        <!-- Bagian Pembayaran Galon -->
+        <div class="section-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Pembayaran Galon</h2>
+            <p class="text-lg text-gray-600">Giliran saat ini:</p>
+            <div id="currentGallonPayer" class="current-payer"></div>
+            <button id="markGallonPaid" class="button-primary">Tandai Galon Sudah Dibayar</button>
+        </div>
+    </div>
+
+    <!-- Modal Pengaturan -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeSettingsModalButton">&times;</button>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Atur Oknum Aktif</h2>
+            <div id="payerCheckboxes" class="mb-6">
+                <!-- Checkbox akan dimasukkan di sini oleh JavaScript -->
+            </div>
+
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Atur Pembayar Awal</h2>
+            <div class="select-container mb-4">
+                <label for="initialElectricityPayerSelect" class="text-gray-600">Listrik:</label>
+                <select id="initialElectricityPayerSelect"></select>
+            </div>
+            <div class="select-container mb-6">
+                <label for="initialGallonPayerSelect" class="text-gray-600">Galon:</label>
+                <select id="initialGallonPayerSelect"></select>
+            </div>
+
+            <button id="saveSettingsButton" class="button-primary w-full">Simpan Pengaturan</button>
+        </div>
+    </div>
+
+    <!-- Modal Riwayat Pembayaran -->
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-content history-modal-content">
+            <button class="modal-close-button" id="closeHistoryModalButton">&times;</button>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Riwayat Pembayaran</h2>
+            <div id="paymentHistoryList" class="history-list">
+                <!-- Riwayat akan dimasukkan di sini oleh JavaScript -->
+            </div>
+            <button id="clearHistoryButton" class="button-primary clear-history-button w-full">Hapus Riwayat</button>
+        </div>
+    </div>
+
+    <!-- Modal Pesan/Konfirmasi Kustom -->
+    <div id="messageModal" class="modal-overlay">
+        <div class="modal-content message-modal-content">
+            <h3 id="messageModalTitle" class="modal-title"></h3>
+            <p id="messageModalMessage" class="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="messageModalConfirmButton" class="button-ok">OK</button>
+                <button id="messageModalCancelButton" class="button-cancel">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Daftar semua orang yang mungkin menjadi pembayar
+        const allPossiblePayers = ['Karim', 'Sandi', 'Rama'];
+        let activePayers = []; // Daftar pembayar yang saat ini aktif
+        let paymentHistory = []; // Riwayat pembayaran
+
+        // Fungsi untuk mendapatkan indeks berikutnya dalam array secara siklis
+        function getNextIndex(currentIndex, payerList) {
+            return (currentIndex + 1) % payerList.length;
+        }
+
+        // Fungsi untuk menyimpan data ke localStorage
+        function saveData(key, value) {
+            localStorage.setItem(key, value);
+        }
+
+        // Fungsi untuk memuat data dari localStorage
+        function loadData(key, defaultValue) {
+            const data = localStorage.getItem(key);
+            try {
+                return data ? JSON.parse(data) : defaultValue;
+            } catch (e) {
+                console.error(`Error parsing localStorage key "${key}":`, e);
+                return defaultValue;
+            }
+        }
+
+        // Inisialisasi daftar pembayar aktif dari localStorage atau default
+        function loadActivePayers() {
+            const savedActivePayers = loadData('activePayers', null);
+            if (savedActivePayers && Array.isArray(savedActivePayers)) {
+                activePayers = savedActivePayers;
+            } else {
+                activePayers = [...allPossiblePayers]; // Default: semua aktif
+                saveData('activePayers', JSON.stringify(activePayers));
+            }
+        }
+
+        // Inisialisasi riwayat pembayaran dari localStorage
+        function loadPaymentHistory() {
+            paymentHistory = loadData('paymentHistory', []);
+            if (!Array.isArray(paymentHistory)) { // Pastikan riwayat adalah array
+                paymentHistory = [];
+                saveData('paymentHistory', JSON.stringify(paymentHistory));
+            }
+        }
+
+        // Inisialisasi indeks pembayar listrik dan galon
+        let electricityPayerIndex;
+        let gallonPayerIndex;
+
+        // Mendapatkan elemen DOM
+        const currentElectricityPayerDiv = document.getElementById('currentElectricityPayer');
+        const currentGallonPayerDiv = document.getElementById('currentGallonPayer');
+        const markElectricityPaidButton = document.getElementById('markElectricityPaid');
+        const markGallonPaidButton = document.getElementById('markGallonPaid');
+        const themeSwitcher = document.getElementById('themeSwitcher');
+        const htmlElement = document.documentElement; // Dapatkan elemen <html>
+
+        const settingsButton = document.getElementById('settingsButton');
+        const showHistoryButton = document.getElementById('showHistoryButton'); // Tombol baru untuk riwayat
+
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettingsModalButton = document.getElementById('closeSettingsModalButton'); // ID tombol tutup diubah
+        const saveSettingsButton = document.getElementById('saveSettingsButton');
+        const payerCheckboxesDiv = document.getElementById('payerCheckboxes');
+        const initialElectricityPayerSelect = document.getElementById('initialElectricityPayerSelect');
+        const initialGallonPayerSelect = document.getElementById('initialGallonPayerSelect');
+
+        const historyModal = document.getElementById('historyModal'); // Modal riwayat baru
+        const closeHistoryModalButton = document.getElementById('closeHistoryModalButton'); // Tombol tutup modal riwayat
+        const paymentHistoryListDiv = document.getElementById('paymentHistoryList');
+        const clearHistoryButton = document.getElementById('clearHistoryButton');
+
+        // Elemen modal pesan kustom
+        const messageModal = document.getElementById('messageModal');
+        const messageModalTitle = document.getElementById('messageModalTitle');
+        const messageModalMessage = document.getElementById('messageModalMessage');
+        const messageModalConfirmButton = document.getElementById('messageModalConfirmButton');
+        const messageModalCancelButton = document.getElementById('messageModalCancelButton');
+
+        let currentConfirmCallback = null; // Untuk menyimpan callback konfirmasi
+
+        // Fungsi untuk menampilkan modal pesan/alert
+        function showAlert(message, title = 'Pemberitahuan') {
+            messageModalTitle.textContent = title;
+            messageModalMessage.textContent = message;
+            messageModalConfirmButton.textContent = 'OK';
+            messageModalConfirmButton.style.display = 'inline-block'; // Tampilkan OK
+            messageModalCancelButton.style.display = 'none'; // Sembunyikan Batal
+            messageModal.classList.add('active');
+            currentConfirmCallback = null; // Reset callback
+        }
+
+        // Fungsi untuk menampilkan modal konfirmasi
+        function showConfirm(message, onConfirm, title = 'Konfirmasi') {
+            messageModalTitle.textContent = title;
+            messageModalMessage.textContent = message;
+            messageModalConfirmButton.textContent = 'Ya';
+            messageModalCancelButton.textContent = 'Tidak';
+            messageModalConfirmButton.style.display = 'inline-block'; // Tampilkan OK
+            messageModalCancelButton.style.display = 'inline-block'; // Tampilkan Batal
+            messageModal.classList.add('active');
+            currentConfirmCallback = onConfirm; // Simpan callback
+        }
+
+        // Event listener untuk tombol OK/Ya di modal pesan
+        messageModalConfirmButton.addEventListener('click', () => {
+            messageModal.classList.remove('active');
+            if (currentConfirmCallback) {
+                currentConfirmCallback(); // Jalankan callback jika ada
+                currentConfirmCallback = null; // Reset
+            }
+        });
+
+        // Event listener untuk tombol Batal/Tidak di modal pesan
+        messageModalCancelButton.addEventListener('click', () => {
+            messageModal.classList.remove('active');
+            currentConfirmCallback = null; // Reset
+        });
+
+        // Fungsi untuk memperbarui tampilan pembayar
+        function updateDisplay() {
+            // Pastikan indeks saat ini valid untuk daftar pembayar aktif
+            if (activePayers.length === 0) {
+                currentElectricityPayerDiv.textContent = "Tidak ada pembayar aktif";
+                currentGallonPayerDiv.textContent = "Tidak ada pembayar aktif";
+                markElectricityPaidButton.disabled = true;
+                markGallonPaidButton.disabled = true;
+                return;
+            } else {
+                markElectricityPaidButton.disabled = false;
+                markGallonPaidButton.disabled = false;
+            }
+
+            // Jika indeks saat ini di luar batas, atur ulang ke 0
+            if (electricityPayerIndex === undefined || electricityPayerIndex >= activePayers.length) {
+                electricityPayerIndex = 0;
+                saveData('electricityPayerIndex', electricityPayerIndex);
+            }
+            if (gallonPayerIndex === undefined || gallonPayerIndex >= activePayers.length) {
+                gallonPayerIndex = 0;
+                saveData('gallonPayerIndex', gallonPayerIndex);
+            }
+
+            currentElectricityPayerDiv.textContent = activePayers[electricityPayerIndex];
+            currentGallonPayerDiv.textContent = activePayers[gallonPayerIndex];
+        }
+
+        // Fungsi untuk menerapkan tema
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                htmlElement.classList.add('dark');
+            } else {
+                htmlElement.classList.remove('dark');
+            }
+            saveData('theme', JSON.stringify(theme)); // Simpan preferensi tema
+            themeSwitcher.value = theme; // Atur nilai dropdown
+        }
+
+        // Fungsi untuk mengisi checkbox dan dropdown di modal pengaturan
+        function populateSettingsModal() {
+            // Isi checkbox
+            payerCheckboxesDiv.innerHTML = '';
+            allPossiblePayers.forEach(payer => {
+                const isChecked = activePayers.includes(payer);
+                const checkboxHtml = `
+                    <div class="checkbox-container">
+                        <label>
+                            <input type="checkbox" id="checkbox-${payer}" value="${payer}" ${isChecked ? 'checked' : ''}>
+                            ${payer}
+                        </label>
+                    </div>
+                `;
+                payerCheckboxesDiv.insertAdjacentHTML('beforeend', checkboxHtml);
+            });
+
+            // Isi dropdown pembayar awal
+            initialElectricityPayerSelect.innerHTML = '';
+            initialGallonPayerSelect.innerHTML = '';
+
+            if (activePayers.length === 0) {
+                const noPayerOption = '<option value="">Tidak ada pembayar aktif</option>';
+                initialElectricityPayerSelect.insertAdjacentHTML('beforeend', noPayerOption);
+                initialGallonPayerSelect.insertAdjacentHTML('beforeend', noPayerOption);
+                initialElectricityPayerSelect.disabled = true;
+                initialGallonPayerSelect.disabled = true;
+            } else {
+                initialElectricityPayerSelect.disabled = false;
+                initialGallonPayerSelect.disabled = false;
+
+                activePayers.forEach(payer => {
+                    const optionHtml = `<option value="${payer}">${payer}</option>`;
+                    initialElectricityPayerSelect.insertAdjacentHTML('beforeend', optionHtml);
+                    initialGallonPayerSelect.insertAdjacentHTML('beforeend', optionHtml);
+                });
+
+                // Set nilai default dropdown berdasarkan pembayar saat ini
+                initialElectricityPayerSelect.value = activePayers[electricityPayerIndex];
+                initialGallonPayerSelect.value = activePayers[gallonPayerIndex];
+            }
+        }
+
+        // Fungsi untuk memperbarui tampilan riwayat pembayaran
+        function updateHistoryDisplay() {
+            paymentHistoryListDiv.innerHTML = ''; // Bersihkan konten sebelumnya
+            if (paymentHistory.length === 0) {
+                paymentHistoryListDiv.textContent = "Belum ada riwayat pembayaran.";
+                return;
+            }
+
+            // Tampilkan riwayat terbaru di atas
+            [...paymentHistory].reverse().forEach(item => {
+                const date = new Date(item.timestamp);
+                const formattedDate = date.toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const historyItemHtml = `
+                    <div class="history-item">
+                        ${formattedDate} - ${item.type} - ${item.payer}
+                    </div>
+                `;
+                paymentHistoryListDiv.insertAdjacentHTML('beforeend', historyItemHtml);
+            });
+        }
+
+        // Event listener untuk tombol "Tandai Listrik Sudah Dibayar"
+        markElectricityPaidButton.addEventListener('click', () => {
+            if (activePayers.length > 0) {
+                const payerName = activePayers[electricityPayerIndex];
+                paymentHistory.push({ type: 'Listrik', payer: payerName, timestamp: new Date().toISOString() });
+                saveData('paymentHistory', JSON.stringify(paymentHistory));
+                updateHistoryDisplay();
+
+                electricityPayerIndex = getNextIndex(electricityPayerIndex, activePayers);
+                saveData('electricityPayerIndex', electricityPayerIndex);
+                updateDisplay();
+            }
+        });
+
+        // Event listener untuk tombol "Tandai Galon Sudah Dibayar"
+        markGallonPaidButton.addEventListener('click', () => {
+            if (activePayers.length > 0) {
+                const payerName = activePayers[gallonPayerIndex];
+                paymentHistory.push({ type: 'Galon', payer: payerName, timestamp: new Date().toISOString() });
+                saveData('paymentHistory', JSON.stringify(paymentHistory));
+                updateHistoryDisplay();
+
+                gallonPayerIndex = getNextIndex(gallonPayerIndex, activePayers);
+                saveData('gallonPayerIndex', gallonPayerIndex);
+                updateDisplay();
+            }
+        });
+
+        // Event listener untuk pengalih tema
+        themeSwitcher.addEventListener('change', (event) => {
+            applyTheme(event.target.value);
+        });
+
+        // Event listener untuk tombol pengaturan
+        settingsButton.addEventListener('click', () => {
+            populateSettingsModal(); // Isi semua elemen di modal setiap kali dibuka
+            settingsModal.classList.add('active');
+        });
+
+        // Event listener untuk tombol "Lihat Riwayat"
+        showHistoryButton.addEventListener('click', () => {
+            updateHistoryDisplay(); // Perbarui tampilan riwayat setiap kali modal dibuka
+            historyModal.classList.add('active');
+        });
+
+        // Event listener untuk tombol tutup modal pengaturan
+        closeSettingsModalButton.addEventListener('click', () => {
+            settingsModal.classList.remove('active');
+        });
+
+        // Event listener untuk tombol tutup modal riwayat
+        closeHistoryModalButton.addEventListener('click', () => {
+            historyModal.classList.remove('active');
+        });
+
+        // Event listener untuk menyimpan pengaturan
+        saveSettingsButton.addEventListener('click', () => {
+            const selectedPayers = [];
+            allPossiblePayers.forEach(payer => {
+                const checkbox = document.getElementById(`checkbox-${payer}`);
+                if (checkbox && checkbox.checked) {
+                    selectedPayers.push(payer);
+                }
+            });
+
+            if (selectedPayers.length === 0) {
+                showAlert('Setidaknya harus ada satu pembayar aktif.');
+                return;
+            }
+
+            activePayers = selectedPayers;
+            saveData('activePayers', JSON.stringify(activePayers));
+
+            // Dapatkan pembayar awal yang dipilih dari dropdown
+            const selectedInitialElectricityPayer = initialElectricityPayerSelect.value;
+            const selectedInitialGallonPayer = initialGallonPayerSelect.value;
+
+            // Temukan indeks pembayar awal yang dipilih dalam daftar pembayar aktif yang baru
+            let newElectricityPayerIndex = activePayers.indexOf(selectedInitialElectricityPayer);
+            if (newElectricityPayerIndex === -1) { // Jika pembayar yang dipilih tidak lagi aktif
+                newElectricityPayerIndex = 0; // Atur ke pembayar pertama yang aktif
+            }
+            electricityPayerIndex = newElectricityPayerIndex;
+            saveData('electricityPayerIndex', electricityPayerIndex);
+
+            let newGallonPayerIndex = activePayers.indexOf(selectedInitialGallonPayer);
+            if (newGallonPayerIndex === -1) { // Jika pembayar yang dipilih tidak lagi aktif
+                newGallonPayerIndex = 0; // Atur ke pembayar pertama yang aktif
+            }
+            gallonPayerIndex = newGallonPayerIndex;
+            saveData('gallonPayerIndex', gallonPayerIndex);
+
+            updateDisplay(); // Perbarui tampilan dengan daftar baru
+            settingsModal.classList.remove('active'); // Tutup modal
+        });
+
+        // Event listener untuk tombol "Hapus Riwayat"
+        clearHistoryButton.addEventListener('click', () => {
+            showConfirm('Apakah Anda yakin ingin menghapus semua riwayat pembayaran?', () => {
+                paymentHistory = [];
+                saveData('paymentHistory', JSON.stringify(paymentHistory));
+                updateHistoryDisplay();
+            });
+        });
+
+        // Panggil fungsi inisialisasi saat halaman dimuat
+        loadActivePayers(); // Muat daftar pembayar aktif terlebih dahulu
+        loadPaymentHistory(); // Muat riwayat pembayaran
+
+        // Muat indeks pembayar awal yang disimpan, atau atur ke 0 jika belum ada
+        electricityPayerIndex = loadData('electricityPayerIndex', 0);
+        gallonPayerIndex = loadData('gallonPayerIndex', 0);
+
+        updateDisplay(); // Perbarui tampilan pembayar saat halaman dimuat
+        // updateHistoryDisplay(); // Tidak perlu lagi dipanggil di sini karena hanya akan dipanggil saat modal riwayat dibuka
+        const savedTheme = loadData('theme', 'dark'); // Default ke 'dark'
+        applyTheme(loadData('theme', 'dark')); // Pastikan tema dimuat dengan benar
+    </script>
+</body>
+</html>
