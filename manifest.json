@@ -1,6 +1,6 @@
 {
   "name": "Ghazi Reminder",
-  "short_name": "Ghazi Reminde",
+  "short_name": "Ghazi Reminder",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
