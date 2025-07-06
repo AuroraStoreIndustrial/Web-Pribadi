@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghazi Reminder</title>
+    <link rel="Icon" type="image/svg" href="Icon3.svg" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #dbeafe 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #e2e8f0;
+        }
+
+        main {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            padding: 48px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            align-items: center;
+            min-width: 320px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark main {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        h1 {
+            margin-bottom: 24px;
+            font-size: 2.2rem;
+            color: #2563eb;
+            letter-spacing: 1px;
+        }
+
+        body.dark h1 {
+            color: #a5b4fc;
+        }
+
+        .menu-btn {
+            background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 20px 48px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+            transition: background 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .menu-btn:hover {
+            background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+
+        .menu-icon {
+            width: 28px;
+            height: 28px;
+        }
+
+        .theme-select-wrapper {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            z-index: 10;
+        }
+
+        .theme-select {
+            background: #fff;
+            color: #1e293b;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.5rem 2.5rem 0.5rem 1rem;
+            font-size: 1rem;
+            appearance: none;
+            outline: none;
+            transition: background 0.3s, color 0.3s, border 0.3s;
+        }
+
+        body.dark .theme-select {
+            background: #334155;
+            color: #e2e8f0;
+            border-color: #475569;
+        }
+
+        .theme-select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #1e293b;
+        }
+
+        body.dark .theme-select-wrapper::after {
+            color: #e2e8f0;
+        }
+
+        @media (max-width: 480px) {
+            main {
+                padding: 24px 8px;
+                min-width: unset;
+            }
+
+            .menu-btn {
+                width: 100%;
+                padding: 16px 0;
+                font-size: 1rem;
+            }
+
+            .theme-select-wrapper {
+                top: 12px;
+                right: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="theme-select-wrapper">
+        <select id="theme-select" class="theme-select">
+            <option value="dark">Gelap</option>
+            <option value="light">Terang</option>
+        </select>
+    </div>
+    <main>
+        <h1>Ghazi Reminder</h1>
+        <a href="jadwal_pengantaran.html" style="text-decoration:none; width:100%;">
+            <button class="menu-btn">
+                <img src="Icon.svg" alt="Antar Jemput" class="menu-icon" />
+                Antar-Jemput
+            </button>
+        </a>
+        <a href="tagihan.html" style="text-decoration:none; width:100%;">
+            <button class="menu-btn">
+                <img src="Icon2.svg" alt="Tagihan" class="menu-icon" />
+                Tagihan
+            </button>
+        </a>
+    </main>
+    <script>
+        // Theme switcher logic
+        const themeSelect = document.getElementById('theme-select');
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        // Load theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        themeSelect.value = savedTheme;
+        applyTheme(savedTheme);
+
+        themeSelect.addEventListener('change', (e) => {
+            applyTheme(e.target.value);
+        });
+    </script>
+</body>
+
+</html>
